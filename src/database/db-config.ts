@@ -7,8 +7,12 @@ export async function getSaasConn(companyDB: ConnectionOptions): Promise<Connect
     if (!saasConn) {
         const dbConfig = {
             ...companyDB,
-            entities: [`${__dirname}/../models/*{.ts,.js}`]
-        }
+            charset: 'utf8mb4',
+            timezone: 'Z',
+            entities: [`${__dirname}/../models/*{.ts,.js}`],
+            logging: false,
+            synchronize: false,
+        }        
         saasConn = await createConnection(dbConfig);
     }
     return saasConn

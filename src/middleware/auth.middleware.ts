@@ -1,6 +1,6 @@
 import { EndpointInfo, IMiddleware, Middleware, Req, Context, Res, Next } from "@tsed/common";
 import { Forbidden, HTTPException, Unauthorized } from "@tsed/exceptions";
-import { NextFunction } from 'connect';
+
 
 @Middleware()
 export class AuthMiddleware {
@@ -26,5 +26,6 @@ export class AuthMiddleware {
 }
 
 const exludeAuth: string[] = [
-    '/auth/login'
+    '/auth/login',
+    '/auth/encrypting'
 ]

@@ -1,4 +1,5 @@
-import { BodyParams, Controller, Post, Res } from '@tsed/common';
+import { BodyParams, Controller, PathParams, Post, QueryParams, Res } from '@tsed/common';
+import { doDecrypt, doEncrypt } from '../helpers/encryption.helper';
 import { responseError } from '../helpers/response.helper';
 import { LoginValidator } from '../inteface/login.validator';
 import { AuthService } from '../services/auth.service';
@@ -17,8 +18,29 @@ export class AuthController {
             res.setHeader('Content-Type', 'application/json')
             res.send(serviceLogin)
 
-        } catch {
-            return responseError('Invalid credentials', 401)
+        } catch (e) {
+            return responseError(e.message, 401)
+        }
+
+    }
+
+    @Post('/encrypting/:isEncrypt')
+    async encrypting(@PathParams('isEncrypt') isEncrypt: boolean, @BodyParams() body: any, @Res() res: any) {
+        try {
+            let data: any;
+            console.log('PARAMSS ', body.data)
+            if (isEncrypt) {
+                data = doEncrypt(JSON.stringify(body.data))
+            } else {
+                data = JSON.parse(doDecrypt(body.data))
+            }
+
+            res.status(200)
+            res.setHeader('Content-Type', 'application/json')
+            res.send({ data })
+
+        } catch (e) {
+            throw e
         }
 
     }

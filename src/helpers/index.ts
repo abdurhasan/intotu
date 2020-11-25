@@ -22,8 +22,20 @@ export function generateToken(partnerCode: string, email: string) {
 
 export const ONE_DAY_MS: number = 3600 * 24 * 1000;
 
+export function groupBy(objectArray : any[], property : string) {
+    return objectArray.reduce((acc: any, obj) => {
+        const key = obj[property];
+        if (!acc[key]) {
+            acc[key] = [];
+        }
+        acc[key].push(obj); // Add object to list for given key's value
 
-export  enum HttpStatus {
+        return acc;
+    }, {});
+}
+
+
+export enum HttpStatus {
     CONTINUE = 100,
     SWITCHING_PROTOCOLS = 101,
     PROCESSING = 102,

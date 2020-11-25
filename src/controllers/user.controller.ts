@@ -1,13 +1,8 @@
 import { BodyParams, Controller, Get, Post, Req, Res } from "@tsed/common";
-import { HTTP_STATUSES } from '@tsed/exceptions';
-import { Returns } from '@tsed/schema';
 import { UserData } from '../inteface/index.interface';
 import { Connection } from 'typeorm';
 import { HttpStatus } from '../helpers';
-import { responseError } from '../helpers/response.helper';
 import { IExposeUserData } from '../inteface/index.interface';
-import { TArticle } from '../models/article.model';
-import { TUser } from '../models/user.model';
 import { UserService } from '../services/user.service';
 import { CreateArticleValidator, UpdateArticleDto } from '../inteface/articles.validator';
 

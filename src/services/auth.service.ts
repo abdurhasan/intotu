@@ -1,6 +1,6 @@
 import { Injectable } from '@tsed/di';
 import { LoginValidator } from '../inteface/login.validator';
-import { Connection, createConnection, getRepository } from 'typeorm';
+import { Connection, createConnection, getConnection, getRepository } from 'typeorm';
 import { IntotuPartner } from '../models/saas/intotu-partner.model';
 import { $log as Logger } from "@tsed/common";
 import { getSaasConn } from '../database/db-config';
@@ -9,18 +9,16 @@ import { doDecrypt } from '../helpers/encryption.helper';
 import { TUserRole } from '../models/user-role.model';
 import { TAccess } from '../models/access.model';
 import { TRole } from '../models/role.model';
-import { generateToken } from '../helpers';
+import { generateToken, ONE_DAY_MS } from '../helpers';
 import { AccessToken } from '../models/saas/AccessToken.model';
 import { UserData } from '../inteface/index.interface';
 import { classToPlain } from 'class-transformer';
+import * as moment from 'moment';
 
 @Injectable()
 export class AuthService {
 
-    constructor() {
-
-    }
-
+    constructor() { }
 
     async doLogin(params: LoginValidator) {
 
@@ -34,7 +32,7 @@ export class AuthService {
             if (!getPartner) {
                 throw new Error('partner tidak ditemukan')
             }
-            const companyConn = (await getSaasConn(getPartner.confSHData)).manager
+            const companyConn = await getSaasConn(partnerCode)
             const userOne = await companyConn.getRepository(TUser)
                 .createQueryBuilder('user')
                 .where('email = :email', { email })
@@ -42,6 +40,7 @@ export class AuthService {
                 .leftJoinAndMapOne('user.getRoleName', TRole, 'trole', 'trole.id = tuserrole.roleId')
                 .leftJoinAndMapMany('user.getAccess', TAccess, 'taccess', 'user.id = tuserrole.userId')
                 .select([
+                    'user.id',
                     'user.fullName',
                     'user.email',
                     'user.password',
@@ -55,20 +54,21 @@ export class AuthService {
             if (!userOne || !this.validatePassword(password, userOne?.password)) {
                 throw new Error('email or password is wrong!')
             }
-            const getToken: string = generateToken(partnerCode, email)
-            const plainUser: any = classToPlain(userOne)
-            const role: string = plainUser['getRoleName']?.roleName
+            const getToken: string = generateToken(partnerCode, email);
+            const plainUser: any = classToPlain(userOne);            
+            const role: string = plainUser['getRoleName']?.roleName;
             const access: string[] = plainUser['getAccess'].map((snap: { accessName: string }) => snap.accessName)
-            const userData = new UserData({ ...plainUser, role, access })
+            const userData = new UserData({ ...plainUser, role, access, partnerCode })
 
             await getRepository(AccessToken)
                 .createQueryBuilder()
                 .insert()
                 .values({
                     id: getToken,
-                    createdAt: new Date(),
+                    createdAt: moment().utc().format('YYYY-MM-DD HH:mm:ss'),
                     userData: JSON.stringify(userData),
-                    roleAuth: JSON.stringify({ role, access })
+                    roleAuth: JSON.stringify({ role, access }),
+                    ttl: Date.now() + ONE_DAY_MS,
                 })
                 .execute()
 
@@ -80,15 +80,30 @@ export class AuthService {
         }
     }
 
-
-    // async getAccessAuth(conn: Connection, userId: number) {
-    //     const result = {
-    //         'admin': ['dashboard', 'articles', 'menu']
-    //     }
-    // }
-
     validatePassword(currentPassword: string, encryptedPassword: string): boolean {
         return currentPassword === JSON.parse(doDecrypt(encryptedPassword));
     }
+
+    async getAuth(token: string): Promise<UserData> {
+        const tokenRepo = AccessToken.createQueryBuilder('accessToken')
+        const accessToken = await tokenRepo
+            .where('accessToken.id = :token', { token })
+            .getOne()
+
+        if (!accessToken) {
+            throw new Error(`invalid authorization : ${token}`)
+        }
+        if (Date.now() > accessToken.ttl) {
+            await tokenRepo
+                .delete()
+                .where('accessToken.id = :token', { token })
+                .execute();
+
+            throw new Error(`token : ${token} was expired`)
+        }
+
+        return new UserData(accessToken.confUserData)
+    }
+
 }
 

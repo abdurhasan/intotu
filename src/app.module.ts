@@ -62,6 +62,6 @@ export class AppModule {
       .use(bodyParser.urlencoded({
         extended: true
       }))
-    // .use(AuthMiddleware)
+    .use(AuthMiddleware)
   }
 }

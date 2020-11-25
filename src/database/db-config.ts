@@ -1,10 +1,16 @@
 
-import { Connection, ConnectionOptions, createConnection } from 'typeorm';
+import { createConnection, getConnection, getRepository } from 'typeorm';
+import { IntotuPartner } from '../models/saas/intotu-partner.model';
 
-
-let saasConn: any = null;
-export async function getSaasConn(companyDB: ConnectionOptions): Promise<Connection> {
-    if (!saasConn) {
+export async function getSaasConn(partnerCode: string) {
+    try {
+        return getConnection(partnerCode)
+    } catch {
+        const getPartner = await getRepository(IntotuPartner)
+            .createQueryBuilder('partner')
+            .where('partner.partnerCode = :partnerCode', { partnerCode: partnerCode })
+            .getOne()
+        const companyDB: any = getPartner?.confSHData;
         const dbConfig = {
             ...companyDB,
             charset: 'utf8mb4',
@@ -12,8 +18,8 @@ export async function getSaasConn(companyDB: ConnectionOptions): Promise<Connect
             entities: [`${__dirname}/../models/*{.ts,.js}`],
             logging: false,
             synchronize: false,
-        }        
-        saasConn = await createConnection(dbConfig);
+        }
+        await createConnection(dbConfig);
+        return getConnection(partnerCode);
     }
-    return saasConn
 }

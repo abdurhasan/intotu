@@ -1,6 +1,5 @@
 import { Middleware, Req, Res, Next } from "@tsed/common";
 import { HTTPException } from "@tsed/exceptions";
-import { $log as Logger } from "@tsed/common";
 import { getSaasConn } from '../database/db-config';
 import { CacheComputing, Global } from '../global';
 import { UserData } from '../inteface/index.interface';
@@ -27,9 +26,10 @@ export class AuthMiddleware {
                     cacheToken.set(token, await this.authService.getAuth(token));
                 }
                 const userData: UserData = cacheToken.get(token);
-                Logger.info('userData : ', userData);
 
                 if (!this.canAccess(originalUrl, userData.access)) {
+                    console.log('originalUrl  : ', originalUrl)
+                    console.log('access  : ', userData.access)
                     throw new Error('You are not allowed')
                 }
                 req.conn = await getSaasConn(userData.partnerCode)

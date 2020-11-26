@@ -1,8 +1,6 @@
 import { Injectable } from '@tsed/di';
 import { Connection } from 'typeorm';
-import { doEncrypt, doDecrypt } from '../helpers/encryption.helper';
 import { CreateArticleValidator, UpdateArticleDto } from '../inteface/articles.validator';
-import { UserData } from '../inteface/index.interface';
 import { TArticle } from '../models/article.model';
 import * as moment from 'moment';
 

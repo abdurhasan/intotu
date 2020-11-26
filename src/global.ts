@@ -31,7 +31,7 @@ export class CacheComputing {
         const self = this;
         setInterval(() => {
             console.log(`clearing : ${self.cacheName} `, self.memoryCache); // Logger
-            self.memoryCache = self.cacheArray ? [] : new Object();
+            self.memoryCache = self.cacheArray ? new Array() : new Object();
         }, ONE_DAY_MS);
     }
 
@@ -43,7 +43,7 @@ export class CacheComputing {
 
     public set(key: string, value: any): void {
         if (!this.memoryCache) {
-            this.memoryCache = this.cacheArray ? [] : new Object();
+            this.memoryCache = this.cacheArray ? new Array() : new Object();
         }
 
         if (this.cacheArray) {
@@ -66,5 +66,9 @@ export class CacheComputing {
                 delete this.memoryCache[key];
             }
         }
+    }
+
+    public destroy() {
+        this.memoryCache = this.cacheArray ? new Array() : new Object();
     }
 }

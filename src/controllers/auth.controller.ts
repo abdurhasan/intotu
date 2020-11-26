@@ -1,4 +1,5 @@
 import { BodyParams, Controller, PathParams, Post, QueryParams, Res } from '@tsed/common';
+import { parseJson } from '../helpers';
 import { doDecrypt, doEncrypt } from '../helpers/encryption.helper';
 import { responseError } from '../helpers/response.helper';
 import { LoginValidator } from '../inteface/login.validator';
@@ -28,11 +29,10 @@ export class AuthController {
     async encrypting(@PathParams('isEncrypt') isEncrypt: boolean, @BodyParams() body: any, @Res() res: any) {
         try {
             let data: any;
-            console.log('PARAMSS ', body.data)
             if (isEncrypt) {
                 data = doEncrypt(JSON.stringify(body.data))
             } else {
-                data = JSON.parse(doDecrypt(body.data))
+                data = parseJson(doDecrypt(body.data))
             }
 
             res.status(200)

@@ -4,8 +4,8 @@ import * as crypto from 'crypto';
 export function parseJson(str: string) {
     try {
         JSON.parse(str);
-    } catch (e) {
-        return null;
+    } catch {
+        return str;
     }
     return JSON.parse(str);
 }

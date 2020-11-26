@@ -1,6 +1,6 @@
 import { Injectable } from '@tsed/di';
 import { LoginValidator } from '../inteface/login.validator';
-import { Connection, createConnection, getConnection, getRepository } from 'typeorm';
+import { getRepository } from 'typeorm';
 import { IntotuPartner } from '../models/saas/intotu-partner.model';
 import { $log as Logger } from "@tsed/common";
 import { getSaasConn } from '../database/db-config';
@@ -9,7 +9,7 @@ import { doDecrypt } from '../helpers/encryption.helper';
 import { TUserRole } from '../models/user-role.model';
 import { TAccess } from '../models/access.model';
 import { TRole } from '../models/role.model';
-import { generateToken, ONE_DAY_MS } from '../helpers';
+import { generateToken, ONE_DAY_MS, parseJson } from '../helpers';
 import { AccessToken } from '../models/saas/AccessToken.model';
 import { UserData } from '../inteface/index.interface';
 import { classToPlain } from 'class-transformer';
@@ -55,7 +55,7 @@ export class AuthService {
                 throw new Error('email or password is wrong!')
             }
             const getToken: string = generateToken(partnerCode, email);
-            const plainUser: any = classToPlain(userOne);            
+            const plainUser: any = classToPlain(userOne);
             const role: string = plainUser['getRoleName']?.roleName;
             const access: string[] = plainUser['getAccess'].map((snap: { accessName: string }) => snap.accessName)
             const userData = new UserData({ ...plainUser, role, access, partnerCode })
@@ -81,7 +81,10 @@ export class AuthService {
     }
 
     validatePassword(currentPassword: string, encryptedPassword: string): boolean {
-        return currentPassword === JSON.parse(doDecrypt(encryptedPassword));
+        Logger.info('AuthService.validatePassword')
+        // console.log('currentPassword    : ', currentPassword)
+        // console.log('decrypted    : ', doDecrypt(encryptedPassword))
+        return currentPassword === parseJson(doDecrypt(encryptedPassword));
     }
 
     async getAuth(token: string): Promise<UserData> {

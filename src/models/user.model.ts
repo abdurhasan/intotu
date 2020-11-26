@@ -3,11 +3,8 @@ import { BaseEntity, Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } fro
 
 @Entity('users')
 export class TUser {
-
-
     @PrimaryGeneratedColumn({ name: 'id' })
     id: number;
-
     @Column({ name: 'fullName' })
     fullName: string;
     @Column({ name: 'email' })
@@ -20,11 +17,10 @@ export class TUser {
     createdAt: string;
     @Column({ name: 'updatedAt' })
     updatedAt: string;
-
 }
 
 
-enum Gender {
+export enum Gender {
     male = 'male',
     female = 'female'
 }

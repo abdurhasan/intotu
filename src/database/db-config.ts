@@ -10,7 +10,8 @@ export async function getSaasConn(partnerCode: string) {
             .createQueryBuilder('partner')
             .where('partner.partnerCode = :partnerCode', { partnerCode: partnerCode })
             .getOne()
-        const companyDB: any = getPartner?.confSHData;
+        const companyDB: any = getPartner?.confSHData;        
+        console.log(getPartner?.confSHData)
         const dbConfig = {
             ...companyDB,
             charset: 'utf8mb4',

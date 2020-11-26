@@ -94,4 +94,18 @@ export class AdminController {
         }
     }
 
+    @Post("/createAccess")
+    async createAccess(@Req() req: any, @Res() res: any, @BodyParams('accessName') accessName: string) {
+        try {
+
+            const conn: Connection = req.conn;
+            await this.adminService.createAccess(conn, accessName);
+            res.json({ success: true, data: accessName })
+
+        } catch (e) {
+            res.status(HttpStatus.UNPROCESSABLE_ENTITY)
+            res.json({ success: false, message: e.message })
+        }
+    }
+
 }

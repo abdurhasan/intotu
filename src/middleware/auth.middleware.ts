@@ -16,7 +16,6 @@ export class AuthMiddleware {
         try {
             const originalUrl: any = req.originalUrl;
             const getPath: string = originalUrl.split("?").shift();
-
             if (!Global.isExcludeMiddleware(getPath)) {
                 const token: string = req.header('Authorization') || req.query.accessToken || req.query.authorization;
                 if (!token) {

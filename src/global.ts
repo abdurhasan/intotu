@@ -3,7 +3,8 @@ import { Config } from './helpers/config.helper';
 
 const excludeMiddleware: string[] = [
     '/auth/login',
-    '/auth/encrypting',
+    '/auth/encrypting/true',
+    '/auth/encrypting/false',
 ]
 
 export class Global {

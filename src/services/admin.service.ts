@@ -113,5 +113,15 @@ export class AdminService {
             .execute()
     }
 
+    async createAccess(conn: Connection, accessName: string) {
+        return await conn.getRepository(TAccess)
+            .createQueryBuilder()
+            .insert()
+            .values({
+                accessName
+            })
+            .execute()
+    }
+
 }
 

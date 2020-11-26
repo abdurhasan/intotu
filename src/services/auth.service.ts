@@ -81,9 +81,7 @@ export class AuthService {
     }
 
     validatePassword(currentPassword: string, encryptedPassword: string): boolean {
-        Logger.info('AuthService.validatePassword')
-        // console.log('currentPassword    : ', currentPassword)
-        // console.log('decrypted    : ', doDecrypt(encryptedPassword))
+        Logger.info('AuthService.validatePassword')        
         return currentPassword === parseJson(doDecrypt(encryptedPassword));
     }
 
